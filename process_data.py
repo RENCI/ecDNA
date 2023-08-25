@@ -23,5 +23,6 @@ if __name__ == '__main__':
     # remove rows with target column Y/N/P being null
     input_df = input_df[input_df['Y/N/P'].notnull()]
     print(f'after removing all rows with Y/N/P targe column being null: {input_df.shape}')
-    print(input_df.isnull().sum()/input_df.shape[0])
+    print((input_df.isnull().sum()/input_df.shape[0]).sort_values())
     input_df.to_csv(output_data, index=False)
+
