@@ -58,7 +58,10 @@ if __name__ == '__main__':
         'Metastasis': 2
     }
     input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].map(mapping)
-    input_df['primary_or_metastasis'].fillna(-1)
+    input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].fillna(-1).astype(int)
     input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].astype('Int8')
-
+    input_df['CN_vs_RNA_75percentile'] = input_df['CN_vs_RNA_75percentile'].fillna(-1).astype(int)
+    input_df['CN_vs_RNA_75percentile'] = input_df['CN_vs_RNA_75percentile'].astype('Int8')
+    print(input_df['primary_or_metastasis'].unique(), input_df['primary_or_metastasis'].dtype)
+    print(input_df['CN_vs_RNA_75percentile'].unique(), input_df['CN_vs_RNA_75percentile'].dtype)
     input_df.to_csv(output_data, index=False)
