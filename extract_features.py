@@ -1,3 +1,9 @@
+############################################
+# This script should be run after running convert_data_to_numerical.py.
+# It read the all numerical data and drop non-relevant feature columns,
+# then output simplified data to a file.
+############################################
+
 import pandas as pd
 import argparse
 

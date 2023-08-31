@@ -1,3 +1,8 @@
+############################################
+# This script read the initial data and remove all null columns
+# and all rows with Y/N/P target column being null to output
+# processed data to a file.
+############################################
 import pandas as pd
 import argparse
 import os

@@ -1,19 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
+from impute_features import columns_with_nulls
 
-
-columns_with_nulls = [
-    'modal_range_numeric',
-    'modal chromosome number',
-    '% polyploidy',
-    'marker chromosomes (average #)',
-    'max_num_frags',
-    'max_num_cnv_changes',
-    'max_frag_length',
-    'num_chr_w_FA',
-    'max_cnv'
-]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
