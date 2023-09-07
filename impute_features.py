@@ -24,26 +24,28 @@ impute_with_0_cols = [
 
 columns_with_nulls = ploidy_cols + impute_with_0_cols
 
+# map definition to (range, mean)
 ploidy_definition_map = {
-    'hexaploid/octaploid': '138-184',
-    'hyperpentaploid': '>115',
-    'pseudotetraploid': '92',
-    2: '69',
-    1: '76-80',
-    'hypertetraploid': '>92',
-    'near-diploid': '46',
-    'near-pseudodiploid': '45-46',
-    'polyploid': '>46',
-    'hypotetraploid': '76-83',
-    'tetraploid': '92',
-    6: '46',
-    5: '46-76',
-    7: '44–45',
-    'pseudodiploid': '44/45 or 46/47',
-    'near-tetraploid': '81-103',
-    'near-triploid': '58-80',
-    4: '24-34'
+    0: (6, 85), # '82-88',
+    3: (13, 65), # '58-71',
+    2: (0, 69), # '69',
+    1: (4, 78), # '76-80',
+    -1: (-1, -1),
+    6: (0, 46), # '46',
+    5: (30, 61), # '46-76',
+    7: (1, 44), # '44–45',
+    4: (10, 29) # '24-34'
 }
+
+
+def impute_ploidy_columns(row, col):
+    if pd.isnull(row[col]):
+        if 'range' in col:
+            return ploidy_definition_map[row['ploidy_classification']][0]
+        else:
+            return ploidy_definition_map[row['ploidy_classification']][1]
+    else:
+        return row[col]
 
 
 if __name__ == '__main__':
@@ -59,8 +61,8 @@ if __name__ == '__main__':
     for col in impute_with_0_cols:
         input_df[col] = input_df[col].fillna(0)
 
-
-
+    for col in ploidy_cols:
+        input_df[col] = input_df.apply(lambda row: impute_ploidy_columns(row, col), axis=1)
 
     input_df.to_csv(output_data, index=False)
 
