@@ -4,28 +4,22 @@
 # have the same scale.
 ############################################
 import joblib
-import pandas as pd
 import argparse
 from sklearn.preprocessing import StandardScaler
-from train_decision_tree import evaluate_pred
+from train import evaluate_pred, read_and_process_data
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='data/ec_master_imputed.csv', help='input csv data')
-    parser.add_argument('--input_model', type=str, default='model_data/decision_tree_model.joblib',
+    parser.add_argument('--input_model', type=str, default='model_data/ensemble_model.joblib',
                         help='saved decision tree model')
 
     args = parser.parse_args()
     input_data = args.input_data
     input_model = args.input_model
 
-    input_df = pd.read_csv(input_data)
-    df_1 = input_df[input_df.target == 1]
-    # remove 'P' or 1 target rows from training data
-    input_df = input_df[input_df.target != 1]
-    input_df['target'].replace(2, 1, inplace=True)
-    print(f'target values: {input_df.target.unique()}')
+    _, _, df_1, input_df = read_and_process_data(input_data)
     print(df_1.shape, input_df.shape)
     for df in (df_1, input_df):
         # separate feature variables from the target variable
