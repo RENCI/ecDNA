@@ -56,8 +56,8 @@ def scale_feature(f, t):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='data/ec_master_imputed.csv', help='input csv data')
-    parser.add_argument('--model_type', type=str, default='gradient_boosting')
-    parser.add_argument('--output_model', type=str, default='model_data/gradient_boosting_model.joblib',
+    parser.add_argument('--model_type', type=str, default='random_forest')
+    parser.add_argument('--output_model', type=str, default='model_data/random_forest_model.joblib',
                         help='saved model')
 
     args = parser.parse_args()
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     model_type = args.model_type
     output_model = args.output_model
 
-    X, y, _, _ = read_and_process_data(input_data)
+    X, y, _, input_df = read_and_process_data(input_data)
 
     X_resampled, y_resampled = under_sample(X, y)
 
@@ -88,6 +88,13 @@ if __name__ == '__main__':
 
     classifier.fit(X_train_scaled, y_train)
     joblib.dump(classifier, output_model)
+
+    if model_type == 'random_forest' or model_type == 'gradient_boosting':
+        feat_imp = classifier.feature_importances_
+        for i, importance in enumerate(feat_imp):
+            if importance > 0:
+                print(f"Feature {i} - {input_df.columns[i]}: {importance:.4f}")
+
     # evaluate the model
     y_pred = classifier.predict(X_test_scaled)
     print(y_pred)
