@@ -11,9 +11,8 @@ from sklearn.preprocessing import LabelEncoder
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML.csv', help='input csv data')
-    parser.add_argument('--output_data', type=str, default='data/CCLE_Mitelman_for_ML_numerical.csv',
-                        help='output csv data with all columns converted into numerical columns')
+    parser.add_argument('--input_data', type=str, default='data/ec_master.csv', help='input csv data')
+    parser.add_argument('--output_data', type=str, default='data/ec_master_numerical.csv', help='input csv data')
 
     args = parser.parse_args()
     input_data = args.input_data
@@ -21,17 +20,15 @@ if __name__ == '__main__':
 
     input_df = pd.read_csv(input_data)
     # drop the cell name column which does not contribute to training
-    input_df.drop(columns=['dataset', 'Sample_ID'], inplace=True)
+    input_df.drop(columns=['CCLE_Name', 'DM amounts'], inplace=True)
     print(input_df.shape)
     # there should be output of five columns: Y/N/P,ploidy_classification,DM amounts,HSR present,primary_or_metastasis
     print(input_df.select_dtypes(include=['object']))
     # Initialize the label encoder to convert categorical columns to numerical type
     label_encoder = LabelEncoder()
     # encode N->0, P->1, Y->2, Y/N/P->target
-    input_df['target'] = label_encoder.fit_transform(input_df['ECDNA_classification'])
-    input_df.drop(columns=['ECDNA_classification'], inplace=True)
-
-    input_df['HSR_classification'] = label_encoder.fit_transform(input_df['HSR_classification'])
+    input_df['target'] = label_encoder.fit_transform(input_df['Y/N/P'])
+    input_df.drop(columns=['Y/N/P'], inplace=True)
 
     # apply custom mapping to map ploidy_classification column to convert the column from strings to numbers, -1
     # means unknown
@@ -51,30 +48,26 @@ if __name__ == '__main__':
     input_df['ploidy_classification'] = input_df['ploidy_classification'].fillna(-1)
     input_df['ploidy_classification'] = input_df['ploidy_classification'].astype('Int8')
 
-    # convert XY_chromosomes column into numerical column
+    # about 94% of HSR present column has NaN/unknown, so cannot impute this column. Encode them as N->0, Y->1, NaN->-1
     mapping = {
-        '-Y': 0,
-        'X': 1,
-        'Y': 2,
-        'XX': 3,
-        'XY': 4,
-        'derX_or_derY': 5,
-        'XX_heterogeneous': 6,
-        'XY_heterogeneous': 7,
-        'YY': 8,
-        'XXX': 9,
-        'XXY': 10,
-        'XYY': 11,
-        'YYY': 12,
-        'XYq+': 13,
-        'XXYY': 14,
-        'XXXX': 15,
-        'XXXXX': 16,
-        'XXXYY': 17,
-        'XXXYYY': 18,
-        'XXXXXXX': 19
+        'Y': 1,
+        'N': 0
     }
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].map(mapping)
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].fillna(-1)
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].astype('Int8')
+    input_df['HSR present'] = input_df['HSR present'].map(mapping)
+    input_df['HSR present'] = input_df['HSR present'].fillna(-1)
+    input_df['HSR present'] = input_df['HSR present'].astype('Int8')
+
+    # for the primary_or_metastasis column, there is 293 records in Primary category, 231 in Metastasis category,
+    # and 192 unknowns
+    mapping = {
+        'Primary': 1,
+        'Metastasis': 2
+    }
+    input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].map(mapping)
+    input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].fillna(-1).astype(int)
+    input_df['primary_or_metastasis'] = input_df['primary_or_metastasis'].astype('Int8')
+    input_df['CN_vs_RNA_75percentile'] = input_df['CN_vs_RNA_75percentile'].fillna(-1).astype(int)
+    input_df['CN_vs_RNA_75percentile'] = input_df['CN_vs_RNA_75percentile'].astype('Int8')
+    print(input_df['primary_or_metastasis'].unique(), input_df['primary_or_metastasis'].dtype)
+    print(input_df['CN_vs_RNA_75percentile'].unique(), input_df['CN_vs_RNA_75percentile'].dtype)
     input_df.to_csv(output_data, index=False)

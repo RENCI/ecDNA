@@ -30,12 +30,17 @@ def read_and_process_data(filename):
     # remove 'P' or 1 target rows from training data
     df = df[df.target != 1]
     df['target'].replace(2, 1, inplace=True)
-    print(f'target values: {df.target.unique()}, {len(df[df.target == 1])} target is 1, '
-          f'{len(df[df.target == 0])} target is 0')
+    print(f'target values: {df.target.unique()}')
     # separate feature variables from the target variable
     feature = df.drop('target', axis=1)  # features
     target = df['target']
     return feature, target, df_1, df
+
+
+def under_sample(f, t):
+    rus = RandomUnderSampler(random_state=42)
+    f_under, t_under = rus.fit_resample(f, t)
+    return f_under, t_under
 
 
 def scale_feature(f, t):
@@ -50,23 +55,22 @@ def scale_feature(f, t):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
-    parser.add_argument('--model_type', type=str, default='svm')
-    parser.add_argument('--output_model', type=str, default='model_data/svm_model.joblib',
+    parser.add_argument('--input_data', type=str, default='data/ec_master_imputed.csv', help='input csv data')
+    parser.add_argument('--model_type', type=str, default='random_forest')
+    parser.add_argument('--output_model', type=str, default='model_data/random_forest_model.joblib',
                         help='saved model')
-    parser.add_argument('--output_analysis_data', type=str, default='analysis_data/svm_features.csv',
-                        help='sorted features with importance scores which are contributed to the classifier')
 
     args = parser.parse_args()
     input_data = args.input_data
     model_type = args.model_type
     output_model = args.output_model
-    output_analysis_data = args.output_analysis_data
 
     X, y, _, input_df = read_and_process_data(input_data)
 
+    X_resampled, y_resampled = under_sample(X, y)
+
     ts = time.time()
-    X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled = scale_feature(X, y)
+    X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled = scale_feature(X_resampled, y_resampled)
 
     if model_type == 'decision_tree':
         # train a decision tree classifier using the scaled features
@@ -86,14 +90,10 @@ if __name__ == '__main__':
     joblib.dump(classifier, output_model)
 
     if model_type == 'random_forest' or model_type == 'gradient_boosting':
-        importance_dict = {}
-        for i, importance in enumerate(classifier.feature_importances_):
+        feat_imp = classifier.feature_importances_
+        for i, importance in enumerate(feat_imp):
             if importance > 0:
-                importance_dict[input_df.columns[i]] = importance
                 print(f"Feature {i} - {input_df.columns[i]}: {importance:.4f}")
-        sorted_importance = sorted(importance_dict.items(), key=lambda x:x[1], reverse=True)
-        importance_df = pd.DataFrame(sorted_importance, columns=['Feature', 'Importance'])
-        importance_df.to_csv(output_analysis_data, index=False)
 
     # evaluate the model
     y_pred = classifier.predict(X_test_scaled)

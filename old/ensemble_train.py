@@ -8,12 +8,12 @@ import joblib
 import argparse
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier, StackingClassifier
-from train import evaluate_pred, read_and_process_data, scale_feature
+from train import evaluate_pred, read_and_process_data, under_sample, scale_feature
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
+    parser.add_argument('--input_data', type=str, default='data/ec_master_imputed.csv', help='input csv data')
     parser.add_argument('--output_model', type=str, default='model_data/ensemble_model.joblib',
                         help='saved model')
 
@@ -23,8 +23,10 @@ if __name__ == '__main__':
 
     X, y, _, _ = read_and_process_data(input_data)
 
+    X_resampled, y_resampled = under_sample(X, y)
+
     ts = time.time()
-    X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled = scale_feature(X, y)
+    X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled = scale_feature(X_resampled, y_resampled)
     base_estimator = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, random_state=42)
     bagging_classifier = BaggingClassifier(estimator=base_estimator, n_estimators=100, random_state=42)
     bagging_classifier.fit(X_train_scaled, y_train)

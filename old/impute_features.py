@@ -1,5 +1,5 @@
 ############################################
-# This script should be run after running convert_data_to_numerical.py.
+# This script should be run after running extract_features.py.
 # It imputes all columns with missing data to get data ready for
 # training a classifer model, then output imputed data to a file.
 ############################################
@@ -10,8 +10,19 @@ import argparse
 ploidy_cols = [
     'modal_range_numeric',
     'modal chromosome number',
+    '% polyploidy',
     'marker chromosomes (average #)'
 ]
+
+impute_with_0_cols = [
+    'max_num_frags',
+    'max_num_cnv_changes',
+    'max_frag_length',
+    'num_chr_w_FA',
+    'max_cnv'
+]
+
+columns_with_nulls = ploidy_cols + impute_with_0_cols
 
 # map definition to (range, mean)
 ploidy_definition_map = {
@@ -39,14 +50,16 @@ def impute_ploidy_columns(row, col):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_numerical.csv', help='input csv data')
-    parser.add_argument('--output_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='imputed data')
+    parser.add_argument('--input_data', type=str, default='data/ec_master_simplified.csv', help='input csv data')
+    parser.add_argument('--output_data', type=str, default='data/ec_master_imputed.csv', help='imputed data')
 
     args = parser.parse_args()
     input_data = args.input_data
     output_data = args.output_data
     input_df = pd.read_csv(input_data)
 
+    for col in impute_with_0_cols:
+        input_df[col] = input_df[col].fillna(0)
 
     for col in ploidy_cols:
         input_df[col] = input_df.apply(lambda row: impute_ploidy_columns(row, col), axis=1)
