@@ -13,12 +13,12 @@ from train import evaluate_pred, read_and_process_data
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--ori_input_data', type=str, default='data/CCLE_Mitelman_for_ML.csv',
-                        help='original input csv data')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
-    parser.add_argument('--input_model', type=str, default='model_data/random_forest_model.joblib',
+    parser.add_argument('--ori_input_data', type=str, default='data/ec_master.csv',
+                        help='original input csv data that includes cell line name')
+    parser.add_argument('--input_data', type=str, default='data/ec_master_imputed.csv', help='input csv data')
+    parser.add_argument('--input_model', type=str, default='model_data/gradient_boosting_model.joblib',
                         help='saved model')
-    parser.add_argument('--output_data', type=str, default='data/CCLE_Mitelman_random_forest_p_predicted_y.csv',
+    parser.add_argument('--output_data', type=str, default='data/ec_master_gradient_boosting_p_predicted_y.csv',
                         help='output csv data')
 
     args = parser.parse_args()
@@ -46,10 +46,10 @@ if __name__ == '__main__':
             indices = np.where(y_pred == 1)[0]
             print(indices)
             ori_df = pd.read_csv(ori_input_data)
-            ori_df_p = ori_df[ori_df['ECDNA_classification'] == 'P']
+            ori_df_p = ori_df[ori_df['Y/N/P'] == 'P']
             print(df.shape, ori_df_p.shape)
             ori_df_p_1 = ori_df_p.iloc[indices]
-            print(ori_df_p_1['dataset'])
+            print(ori_df_p_1['CCLE_Name'])
             ori_df_p_1.to_csv(output_data, index=False)
         else:
             accuracy, prec, recall, f1 = evaluate_pred(y, y_pred)
