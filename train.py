@@ -7,7 +7,8 @@ import time
 import joblib
 import pandas as pd
 import argparse
-from imblearn.under_sampling import RandomUnderSampler
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -51,10 +52,10 @@ def scale_feature(f, t):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
-    parser.add_argument('--model_type', type=str, default='svm')
-    parser.add_argument('--output_model', type=str, default='model_data/svm_model.joblib',
+    parser.add_argument('--model_type', type=str, default='Random Forest')
+    parser.add_argument('--output_model', type=str, default='model_data/random_forest_model.joblib',
                         help='saved model')
-    parser.add_argument('--output_analysis_data', type=str, default='analysis_data/svm_features.csv',
+    parser.add_argument('--output_analysis_data', type=str, default='analysis_data/random_forest_features.csv',
                         help='sorted features with importance scores which are contributed to the classifier')
 
     args = parser.parse_args()
@@ -71,12 +72,12 @@ if __name__ == '__main__':
     if model_type == 'decision_tree':
         # train a decision tree classifier using the scaled features
         classifier = DecisionTreeClassifier(random_state=42)
-    elif model_type == 'random_forest':
+    elif model_type == 'Random Forest':
         # n_estimators set between 150 to 170 result in best overral performance metric
         classifier = RandomForestClassifier(n_estimators=150, random_state=42)
     elif model_type == 'svm':
         classifier = SVC(kernel='rbf', C=1.0, probability=True, random_state=42)
-    elif model_type == 'gradient_boosting':
+    elif model_type == 'Gradient Boosting':
         classifier = GradientBoostingClassifier(n_estimators=150, learning_rate=0.1, random_state=42)
     else:
         print(f'model {model_type} is not supported, exiting')
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     classifier.fit(X_train_scaled, y_train)
     joblib.dump(classifier, output_model)
 
-    if model_type == 'random_forest' or model_type == 'gradient_boosting':
+    if model_type == 'Random Forest' or model_type == 'Gradient Boosting':
         importance_dict = {}
         for i, importance in enumerate(classifier.feature_importances_):
             if importance > 0:
@@ -98,8 +99,23 @@ if __name__ == '__main__':
     # evaluate the model
     y_pred = classifier.predict(X_test_scaled)
     print(y_pred)
+    y_probs_pred = classifier.predict_proba(X_test_scaled)[:, 1]
+    print(y_probs_pred)
+    # Compute ROC curve and AUC for Random Forest
+    fpr, tpr, _ = roc_curve(y_test, y_probs_pred)
+    roc_auc = auc(fpr, tpr)
 
     accuracy, precision, recall, f1 = evaluate_pred(y_test, y_pred)
     te = time.time()
     print(f"Accuracy: {accuracy:.2f}, precision: {precision: .2f}, recall: {recall: .2f}, f1: {f1: .2f},"
           f" time taken: {te-ts}")
+    # Plot the ROC curves
+    plt.figure(figsize=(10, 7))
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'{model_type} (AUC = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc='lower right')
+    # plt.show()
+    plt.savefig(f'{model_type.replace(" ", "")}_roc_plot.pdf', format='pdf', bbox_inches='tight')
