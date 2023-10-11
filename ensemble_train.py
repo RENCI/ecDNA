@@ -40,7 +40,7 @@ if __name__ == '__main__':
     y_pred = stacking_classifier.predict(X_test_scaled)
     print(y_pred)
 
-    accuracy, precision, recall, f1 = evaluate_pred(y_test, y_pred)
+    accuracy, precision, recall, f1, _ = evaluate_pred(y_test, y_pred)
     te = time.time()
     print(f"Accuracy: {accuracy:.2f}, precision: {precision: .2f}, recall: {recall: .2f}, f1: {f1: .2f},"
           f" time taken: {te-ts}")

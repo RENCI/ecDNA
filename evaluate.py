@@ -52,5 +52,5 @@ if __name__ == '__main__':
             print(ori_df_p_1['dataset'])
             ori_df_p_1.to_csv(output_data, index=False)
         else:
-            accuracy, prec, recall, f1 = evaluate_pred(y, y_pred)
+            accuracy, prec, recall, f1, _ = evaluate_pred(y, y_pred)
             print(f"Accuracy: {accuracy:.2f}, precision: {prec: .2f}, recall: {recall: .2f}, f1: {f1: .2f}")
