@@ -7,6 +7,7 @@ import joblib
 import os
 import pandas as pd
 import argparse
+import seaborn as sns
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
@@ -15,7 +16,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, hamming_loss
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, hamming_loss, confusion_matrix, \
+    multilabel_confusion_matrix, classification_report
+
 
 
 def evaluate_pred(truth, pred, multilabel=False):
@@ -73,14 +76,16 @@ def get_importance_features(model, feat_cols):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
-    parser.add_argument('--model_type', type=str, default='Random Forest')
-    parser.add_argument('--hsr_target', action='store_false',
+    parser.add_argument('--model_type', type=str, default='Gradient Boosting')
+    parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
-    parser.add_argument('--output_model', type=str, default='model_data/random_forest_2_labels_model.joblib',
+    parser.add_argument('--test_on_depmap', action='store_false',
+                        help='train ')
+    parser.add_argument('--output_model', type=str, default='model_data/gradient_boosting_2_labels_model.joblib',
                         help='saved model')
     parser.add_argument('--output_analysis_data', type=str,
-                        default='analysis_data/random_forest_2_labels_features.csv',
+                        default='analysis_data/gradient_boosting_2_labels_features.csv',
                         help='sorted features with importance scores which are contributed to the classifier')
 
     args = parser.parse_args()
@@ -91,6 +96,7 @@ if __name__ == '__main__':
     output_analysis_data = args.output_analysis_data
 
     target_columns = ['target', 'HSR_classification'] if hsr_target else ['target']
+    disp_target_columns = ['ecDNA', 'HSR']
     X, y, _, input_df = read_and_process_data(input_data, target_columns=target_columns)
 
     X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled = scale_feature(X, y)
@@ -132,9 +138,24 @@ if __name__ == '__main__':
 
     # evaluate the model
     y_pred = classifier.predict(X_test_scaled)
+    print(f"Classification report: {classification_report(y_test, y_pred)}")
     accuracy, precision, recall, f1, ham_loss = evaluate_pred(y_test, y_pred, multilabel=hsr_target)
     if hsr_target:
+        cms = multilabel_confusion_matrix(y_test, y_pred)
+        print(f"Confusion Matrix: {cms}")
         print(f"Accuracy: {accuracy}, precision: {precision}, recall: {recall}, f1: {f1}, hamming_loss: {ham_loss}")
+        for i, cm in enumerate(cms):
+            ax = plt.subplot()
+            sns.heatmap(cm, annot=True, ax=ax, cmap='Blues', fmt='d')
+            ax.set_title(f'Confusion Matrix of {disp_target_columns[i]} for {model_type}')
+            ax.set_xlabel('Predicted')
+            ax.set_ylabel('Truth')
+            ax.xaxis.set_ticklabels([f'{disp_target_columns[i]} (N)', f'{disp_target_columns[i]} (Y)'])
+            ax.yaxis.set_ticklabels([f'{disp_target_columns[i]} (N)', f'{disp_target_columns[i]} (Y)'])
+            # plt.show()
+            plt.savefig(f'{model_type.replace(" ", "")}_cm_plot_2_labels_{disp_target_columns[i]}.pdf', format='pdf',
+                        bbox_inches='tight')
+
         y_probs_pred_1 = classifier.predict_proba(X_test_scaled)[0][:, 1]
         # Compute ROC curve and AUC for Random Forest
         fpr1, tpr1, _ = roc_curve(y_test['target'], y_probs_pred_1)
@@ -157,7 +178,18 @@ if __name__ == '__main__':
         # plt.show()
         plt.savefig(f'{model_type.replace(" ", "")}_2_labels_roc_plot.pdf', format='pdf', bbox_inches='tight')
     else:
+        cm = confusion_matrix(y_test, y_pred)
+        print(f"Confusion Matrix: {cm}")
         print(f"Accuracy: {accuracy:.2f}, precision: {precision: .2f}, recall: {recall: .2f}, f1: {f1: .2f}")
+        ax = plt.subplot()
+        sns.heatmap(cm, annot=True, ax=ax, cmap='Blues', fmt='d')
+        ax.set_title(f'Confusion Matrix for {model_type}')
+        ax.set_xlabel('Predicted')
+        ax.set_ylabel('Truth')
+        ax.xaxis.set_ticklabels(['ecDNA (N)', 'ecDNA (Y)'])
+        ax.yaxis.set_ticklabels(['ecDNA (N)', 'ecDNA (Y)'])
+        # plt.show()
+        plt.savefig(f'{model_type.replace(" ", "")}_cm_plot.pdf', format='pdf', bbox_inches='tight')
         y_probs_pred = classifier.predict_proba(X_test_scaled)[:, 1]
         # Compute ROC curve and AUC for Random Forest
         fpr, tpr, _ = roc_curve(y_test, y_probs_pred)
