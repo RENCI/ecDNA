@@ -9,6 +9,51 @@ import argparse
 from sklearn.preprocessing import LabelEncoder
 
 
+ploidy_mapping = {
+        'higher ploidies (>=4N)': 0,
+        'hypertriploid': 1,
+        'triploid': 2,
+        'mixed ploidies (<= 3N)': 3,
+        'hypotriploid': 4,
+        'hyperdiploid': 5,
+        'diploid': 6,
+        'hypodiploid': 7,
+        'aneuploid': -1,
+        'polyploid': -1
+    }
+
+chromosome_mapping = {
+        '-Y': 0,
+        'X': 1,
+        'Y': 2,
+        'XX': 3,
+        'XY': 4,
+        'derX_or_derY': 5,
+        'XX_heterogeneous': 6,
+        'XY_heterogeneous': 7,
+        'YY': 8,
+        'XXX': 9,
+        'XXY': 10,
+        'XYY': 11,
+        'YYY': 12,
+        'XYq+': 13,
+        'XXYY': 14,
+        'XXXX': 15,
+        'XXXXX': 16,
+        'XXXYY': 17,
+        'XXXYYY': 18,
+        'XXXXXXX': 19
+    }
+
+
+def map_feature(df_col, mapping):
+    # apply custom mapping to map column to convert the column from strings to numbers, -1
+    # means unknown
+    df_col = df_col.map(mapping)
+    df_col = df_col.fillna(-1)
+    return df_col.astype('Int8')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML.csv', help='input csv data')
@@ -35,46 +80,8 @@ if __name__ == '__main__':
 
     # apply custom mapping to map ploidy_classification column to convert the column from strings to numbers, -1
     # means unknown
-    mapping = {
-        'higher ploidies (>=4N)': 0,
-        'hypertriploid': 1,
-        'triploid': 2,
-        'mixed ploidies (<= 3N)': 3,
-        'hypotriploid': 4,
-        'hyperdiploid': 5,
-        'diploid': 6,
-        'hypodiploid': 7,
-        'aneuploid': -1,
-        'polyploid': -1
-    }
-    input_df['ploidy_classification'] = input_df['ploidy_classification'].map(mapping)
-    input_df['ploidy_classification'] = input_df['ploidy_classification'].fillna(-1)
-    input_df['ploidy_classification'] = input_df['ploidy_classification'].astype('Int8')
-
+    input_df['ploidy_classification'] = map_feature(input_df['ploidy_classification'], ploidy_mapping)
     # convert XY_chromosomes column into numerical column
-    mapping = {
-        '-Y': 0,
-        'X': 1,
-        'Y': 2,
-        'XX': 3,
-        'XY': 4,
-        'derX_or_derY': 5,
-        'XX_heterogeneous': 6,
-        'XY_heterogeneous': 7,
-        'YY': 8,
-        'XXX': 9,
-        'XXY': 10,
-        'XYY': 11,
-        'YYY': 12,
-        'XYq+': 13,
-        'XXYY': 14,
-        'XXXX': 15,
-        'XXXXX': 16,
-        'XXXYY': 17,
-        'XXXYYY': 18,
-        'XXXXXXX': 19
-    }
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].map(mapping)
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].fillna(-1)
-    input_df['XY_chromosomes'] = input_df['XY_chromosomes'].astype('Int8')
+    input_df['XY_chromosomes'] = map_feature(input_df['XY_chromosomes'], chromosome_mapping)
+
     input_df.to_csv(output_data, index=False)
