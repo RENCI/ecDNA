@@ -1,5 +1,5 @@
 ############################################
-# This script train a decision tree model using ec_master_imputed.csv data.
+# This script train a model using imputed data generated from impute_features.py.
 # It does feature scaling first before training to make sure all features
 # have the same scale.
 ############################################
@@ -80,8 +80,6 @@ if __name__ == '__main__':
     parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
-    parser.add_argument('--test_on_depmap', action='store_false',
-                        help='train ')
     parser.add_argument('--output_model', type=str, default='model_data/gradient_boosting_2_labels_model.joblib',
                         help='saved model')
     parser.add_argument('--output_analysis_data', type=str,

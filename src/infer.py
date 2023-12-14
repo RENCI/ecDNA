@@ -1,7 +1,5 @@
 ############################################
-# This script train a decision tree model using ec_master_imputed.csv data.
-# It does feature scaling first before training to make sure all features
-# have the same scale.
+# This script uses a trained classifer model to make inference on new data beyond training and validation data.
 ############################################
 import joblib
 import argparse

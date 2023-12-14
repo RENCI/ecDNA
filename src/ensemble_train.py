@@ -1,5 +1,5 @@
 ############################################
-# This script train a decision tree model using ec_master_imputed.csv data.
+# This script train an ensemble model using data generated from impute_features.py.
 # It does feature scaling first before training to make sure all features
 # have the same scale.
 ############################################

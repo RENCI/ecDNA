@@ -1,7 +1,6 @@
 ############################################
 # This script should be run after running process_data.py.
-# It read the processed data and drop non-numerical column CCLE_Name,
-# and the "DM amounts" column, then convert all non-numerical columns
+# It read the processed data and convert all non-numerical columns
 # to numbers, then output converted data to a file.
 ############################################
 import pandas as pd

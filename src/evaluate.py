@@ -1,7 +1,6 @@
 ############################################
-# This script train a decision tree model using ec_master_imputed.csv data.
-# It does feature scaling first before training to make sure all features
-# have the same scale.
+# This script evaluate a trained model using the data with P value (i.e., probable the target) and using the whole
+# training data.
 ############################################
 import joblib
 import argparse
@@ -18,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
     parser.add_argument('--input_model', type=str, default='model_data/gradient_boosting_2_labels_model.joblib',
                         help='saved model')
-    parser.add_argument('--hsr_target', action='store_false',
+    parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
     parser.add_argument('--output_data', type=str, default='data/CCLE_Mitelman_gradient_boosting_2_labels_p_predicted.csv',
