@@ -76,10 +76,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--input_data', type=str, default='../data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
     parser.add_argument('--model_type', type=str, default='Gradient Boosting')
-    parser.add_argument('--hsr_target', action='store_false',
+    parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
-    parser.add_argument('--output_model', type=str, default='../model_data/gradient_boosting_2_labels_model.joblib',
+    parser.add_argument('--output_model', type=str, default='../model_data/gradient_boosting_model.joblib',
                         help='saved model')
     parser.add_argument('--output_analysis_data', type=str,
                         default='../results/analysis_data/gradient_boosting_features.csv',
