@@ -19,16 +19,16 @@ def get_range_number(in_range):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/Mouse_karyotypes_ECDNA.csv', help='input csv data')
-    parser.add_argument('--train_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv',
+    parser.add_argument('--input_data', type=str, default='../data/Mouse_karyotypes_ECDNA.csv', help='input csv data')
+    parser.add_argument('--train_data', type=str, default='../data/CCLE_Mitelman_for_ML_imputed.csv',
                         help='input training csv data')
-    parser.add_argument('--input_model', type=str, default='model_data/gradient_boosting_model.joblib',
+    parser.add_argument('--input_model', type=str, default='../model_data/gradient_boosting_model.joblib',
                         help='saved model')
     parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
     parser.add_argument('--output_data', type=str,
-                        default='data/Mouse_karyotypes_gradient_boosting_predicted.csv',
+                        default='../data/Mouse_karyotypes_gradient_boosting_predicted.csv',
                         help='output csv data')
 
     args = parser.parse_args()

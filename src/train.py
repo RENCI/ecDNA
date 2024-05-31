@@ -20,7 +20,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
     multilabel_confusion_matrix, classification_report
 
 
-
 def evaluate_pred(truth, pred, multilabel=False):
     average_method = 'binary'
     if multilabel:
@@ -75,15 +74,15 @@ def get_importance_features(model, feat_cols):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--input_data', type=str, default='data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
+    parser.add_argument('--input_data', type=str, default='../data/CCLE_Mitelman_for_ML_imputed.csv', help='input csv data')
     parser.add_argument('--model_type', type=str, default='Gradient Boosting')
     parser.add_argument('--hsr_target', action='store_true',
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
-    parser.add_argument('--output_model', type=str, default='model_data/gradient_boosting_2_labels_model.joblib',
+    parser.add_argument('--output_model', type=str, default='../model_data/gradient_boosting_model.joblib',
                         help='saved model')
     parser.add_argument('--output_analysis_data', type=str,
-                        default='analysis_data/gradient_boosting_2_labels_features.csv',
+                        default='../results/analysis_data/gradient_boosting_features.csv',
                         help='sorted features with importance scores which are contributed to the classifier')
 
     args = parser.parse_args()
@@ -151,8 +150,8 @@ if __name__ == '__main__':
             ax.xaxis.set_ticklabels([f'{disp_target_columns[i]} (N)', f'{disp_target_columns[i]} (Y)'])
             ax.yaxis.set_ticklabels([f'{disp_target_columns[i]} (N)', f'{disp_target_columns[i]} (Y)'])
             # plt.show()
-            plt.savefig(f'{model_type.replace(" ", "")}_cm_plot_2_labels_{disp_target_columns[i]}.pdf', format='pdf',
-                        bbox_inches='tight')
+            # plt.savefig(f'{model_type.replace(" ", "")}_cm_plot_2_labels_{disp_target_columns[i]}.pdf', format='pdf',
+            #             bbox_inches='tight')
 
         y_probs_pred_1 = classifier.predict_proba(X_test_scaled)[0][:, 1]
         # Compute ROC curve and AUC for Random Forest
@@ -174,7 +173,7 @@ if __name__ == '__main__':
         plt.title('Receiver Operating Characteristic')
         plt.legend(loc='lower right')
         # plt.show()
-        plt.savefig(f'{model_type.replace(" ", "")}_2_labels_roc_plot.pdf', format='pdf', bbox_inches='tight')
+        # plt.savefig(f'{model_type.replace(" ", "")}_2_labels_roc_plot.pdf', format='pdf', bbox_inches='tight')
     else:
         cm = confusion_matrix(y_test, y_pred)
         print(f"Confusion Matrix: {cm}")
@@ -201,5 +200,5 @@ if __name__ == '__main__':
         plt.title('Receiver Operating Characteristic (ROC) Curve')
         plt.legend(loc='lower right')
         # plt.show()
-        plt.savefig(f'{model_type.replace(" ", "")}_roc_plot.pdf', format='pdf', bbox_inches='tight')
+        # plt.savefig(f'{model_type.replace(" ", "")}_roc_plot.pdf', format='pdf', bbox_inches='tight')
 
