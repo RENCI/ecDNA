@@ -28,7 +28,7 @@ if __name__ == '__main__':
                         help='Whether to add hsr_classification into target as well to make the model do two label '
                              'classification to classify both ecDNA and HSR to differentiate them')
     parser.add_argument('--output_data', type=str,
-                        default='../data/Mouse_karyotypes_gradient_boosting_predicted_2.csv',
+                        default='../data/Mouse_karyotypes_gradient_boosting_predicted.csv',
                         help='output csv data')
 
     args = parser.parse_args()
