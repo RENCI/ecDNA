@@ -5,5 +5,3 @@ numpy==1.24.4
 seaborn==0.13.0
 matplotlib==3.7.1
 shap==0.44.1
-lime==0.2.0.1
-xgboost==2.0.3
