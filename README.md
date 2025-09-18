@@ -3,9 +3,11 @@
 This repository includes source code and initial analysis results for applying machine learning approaches 
 to classify and analyse ecDNA in cancer using a gold standard database CytoCellDB. 
 It represents our initial effort to assess the application of CytoCellDB data in the 
-classification and analysis of ecDNA using machine learning approaches. We are currently 
-working on publishing our initial findings. In addition, we are actively enhancing 
-CytoCellDB data and improving machine learning models.
+classification and analysis of ecDNA using machine learning approaches. Our initial findings were 
+published in [NAR Cancer](https://academic.oup.com/narcancer). For full details, please refer to our paper 
+[CytoCellDB: a comprehensive resource for exploring extrachromosomal DNA in cancer cell lines](https://pmc.ncbi.nlm.nih.gov/articles/PMC11292414/). 
+We continue to enhance CytoCellDB by expanding the data and refining our machine learning models, 
+and this work is ongoing.
 
 ## Installation and Environment Setup for running model training, prediction, and analysis code
 
